@@ -1,0 +1,7 @@
+google-generativeai
+python-dotenv
+pandas
+jupyterlab
+pydantic
+# PyMuPDF for PDF processing, uncomment if needed
+# pymupdf

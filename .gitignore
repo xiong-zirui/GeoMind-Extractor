@@ -1,0 +1,30 @@
+# Ignore raw and processed data
+/data/raw/
+/data/processed/
+/data/finetune_dataset/
+
+# Ignore cache
+.cache/
+
+# Ignore Jupyter notebook checkpoints
+notebooks/.ipynb_checkpoints/
+
+# Ignore Python virtual environments
+venv/
+ENV/
+
+# Ignore system files
+.DS_Store
+
+# Ignore environment variables
+.env
+
+# Ignore log files
+*.log
+
+# Ignore __pycache__
+__pycache__/
+
+# Ignore other temp files
+*.tmp
+*.bak
