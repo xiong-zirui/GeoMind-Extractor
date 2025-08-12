@@ -4,7 +4,6 @@ import pathlib
 import fitz  # PyMuPDF
 import logging
 from typing import List
-from src import agent_interaction
 from datetime import datetime
 
 # --- Text Extraction and Chunking ---
@@ -45,6 +44,17 @@ def chunk_text_by_paragraph(text: str, min_chunk_size: int = 50) -> List[str]:
     logging.info(f"Split text into {len(processed_chunks)} semantic chunks.")
     return processed_chunks
 
+def extract_images_from_pdf(pdf_path: pathlib.Path, output_dir: pathlib.Path) -> list:
+    """
+    Extracts images from a PDF and saves them to a directory.
+    Returns a list of paths to the extracted images.
+    """
+    # This is a placeholder implementation. 
+    # A real implementation would use PyMuPDF to extract images.
+    logging.info(f"Extracting images from {pdf_path.name}...")
+    return []
+
+
 # --- Main Processing Orchestration ---
 
 def process_single_pdf(pdf_path: pathlib.Path, agent) -> dict:
@@ -63,12 +73,14 @@ def process_single_pdf(pdf_path: pathlib.Path, agent) -> dict:
     if text_chunks:
         first_chunk = text_chunks[0]
         logging.info("Using the first semantic chunk for metadata extraction.")
-        metadata = agent_interaction.get_metadata_from_text(agent, first_chunk)
+        # This assumes the agent has a method to get metadata
+        metadata = agent.run(prompt="Extract metadata (title, authors, etc.) from the following text.", context=first_chunk)
     else:
         logging.warning("No significant text chunks found for metadata extraction.")
 
     # 3. Extract Table from the entire PDF (this remains unchanged)
-    table_data = agent_interaction.get_table_from_pdf(agent, pdf_path)
+    # This assumes the agent has a method to get table data
+    table_data = agent.run(prompt="Extract any tables from the document.", context=full_text)
     
     # 4. Extract Knowledge Graph from the first few chunks
     knowledge_graph = {}
@@ -76,7 +88,8 @@ def process_single_pdf(pdf_path: pathlib.Path, agent) -> dict:
         # Combine the first 3 chunks to provide more context for KG extraction
         kg_context = " ".join(text_chunks[:3])
         logging.info("Using the first three semantic chunks for knowledge graph extraction.")
-        knowledge_graph = agent_interaction.get_knowledge_graph_from_text(agent, kg_context)
+        # This assumes the agent has a method to get a knowledge graph
+        knowledge_graph = agent.run(prompt="Extract a knowledge graph (entities and relationships) from the text.", context=kg_context)
     else:
         logging.warning("No significant text chunks found for knowledge graph extraction.")
 
@@ -87,9 +100,10 @@ def process_single_pdf(pdf_path: pathlib.Path, agent) -> dict:
     structured_output = {
         "source_file": pdf_path.name,
         "processing_timestamp_utc": datetime.utcnow().isoformat(),
-        "metadata": metadata.dict() if metadata else None,
-        "extracted_tables": [table_data.dict() if table_data else None],
-        "knowledge_graph": knowledge_graph.dict() if knowledge_graph else None,
+        "full_text": full_text,
+        "metadata": metadata,
+        "extracted_tables": [table_data],
+        "knowledge_graph": knowledge_graph,
         "image_analysis": image_analyses
     }
     

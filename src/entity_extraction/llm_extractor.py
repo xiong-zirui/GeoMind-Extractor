@@ -1,19 +1,17 @@
-# src/agent_interaction.py
+# src/entity_extraction/llm_extractor.py
 
-import os
 import pathlib
 import json
 import logging
 import time
 import hashlib
-from typing import Type, TypeVar, Optional, List, Union
+from typing import Type, TypeVar, Optional, List
 
-import google.generativeai as genai
-from dotenv import load_dotenv
 from pydantic import ValidationError, BaseModel
 
 # Import our Pydantic models
-from src.models import ExtractedMetadata, ExtractedTable, MapAnalysis, KnowledgeGraph
+from models import ExtractedMetadata, ExtractedTable, MapAnalysis, KnowledgeGraph
+from agents.manager import AgentManager
 
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -59,21 +57,11 @@ def generate_cache_key(prompt: str, input_data: list) -> str:
 
 
 # --- Configuration ---
-def configure_agent():
+def configure_agent(agent_type: str, agent_name: str, api_key: str):
     """
-    Loads API key from .env and configures the Gemini model.
-    Returns a configured model object.
+    Configures and returns an agent manager.
     """
-    dotenv_path = pathlib.Path(__file__).resolve().parents[1] / '.env'
-    load_dotenv(dotenv_path=dotenv_path)
-
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key or "YOUR_API_KEY_HERE" in api_key:
-        raise ValueError("ERROR: GOOGLE_API_KEY not found or not set in .env file.")
-    
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-pro-latest')
-    return model
+    return AgentManager(agent_name=agent_name, agent_type=agent_type, api_key=api_key)
 
 def get_prompt_from_file(prompt_filename: str) -> str:
     """Reads a prompt template from the ../prompts/ directory."""
@@ -122,7 +110,7 @@ def get_structured_data_with_retry(
         logging.info(f"Calling agent (Attempt {attempt + 1}/{max_retries})...")
         
         try:
-            response = agent.generate_content(current_input)
+            response = agent.process_input(current_input)
             cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
             
             try:
@@ -177,12 +165,12 @@ def get_metadata_from_text(agent, text_chunk: str) -> Optional[ExtractedMetadata
         input_data=[prompt_with_instructions, text_chunk]
     )
 
-def get_table_from_pdf(agent, pdf_path: pathlib.Path) -> Optional[ExtractedTable]:
+def get_table_from_pdf(agent: AgentManager, pdf_path: pathlib.Path) -> Optional[ExtractedTable]:
     """
     Uploads a PDF and asks the agent to extract a table in a structured format.
     """
     logging.info(f"Uploading '{pdf_path.name}' for table extraction...")
-    pdf_file = genai.upload_file(path=pdf_path, display_name=pdf_path.name)
+    pdf_file = agent.upload_file(file_path=pdf_path, display_name=pdf_path.name)
     
     try:
         base_prompt = get_prompt_from_file('extract_table.md')
@@ -197,7 +185,7 @@ def get_table_from_pdf(agent, pdf_path: pathlib.Path) -> Optional[ExtractedTable
     finally:
         # Clean up the uploaded file
         logging.info(f"Deleting uploaded file '{pdf_file.name}' from server.")
-        genai.delete_file(pdf_file.name)
+        agent.delete_file(pdf_file.name)
 
 def get_knowledge_graph_from_text(agent, text_chunk: str) -> Optional[KnowledgeGraph]:
     """

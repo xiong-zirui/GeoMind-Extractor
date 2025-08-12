@@ -28,3 +28,6 @@ __pycache__/
 # Ignore other temp files
 *.tmp
 *.bak
+
+# Reference Project
+Docs2KG-develop/

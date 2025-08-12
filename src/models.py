@@ -62,6 +62,17 @@ class KnowledgeGraph(BaseModel):
     relationships: List[Relationship] = Field(..., description="A list of all identified relationships between entities.")
     confidence_score: float = Field(..., ge=0, le=1, description="The model's confidence in the accuracy of the extracted graph (0.0 to 1.0).")
 
+class Document(BaseModel):
+    """
+    The root model representing a single processed document and all its extracted data.
+    """
+    source_file: str = Field(..., description="The name of the original source file (e.g., 'report.pdf').")
+    processing_timestamp_utc: str = Field(..., description="The UTC timestamp of when the document was processed.")
+    full_text: Optional[str] = Field(None, description="The full text extracted from the document.")
+    metadata: Optional[ExtractedMetadata] = Field(None, description="The extracted metadata from the document.")
+    extracted_tables: List[ExtractedTable] = Field([], description="A list of tables extracted from the document.")
+    knowledge_graph: Optional[KnowledgeGraph] = Field(None, description="The knowledge graph extracted from the document.")
+    image_analysis: List[MapAnalysis] = Field([], description="A list of analyses for images found in the document.")
 
 class ExtractionError(BaseModel):
     """

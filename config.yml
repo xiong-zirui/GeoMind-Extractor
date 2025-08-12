@@ -1,0 +1,15 @@
+# API keys
+openai_api_key: "YOUR_OPENAI_API_KEY"
+
+# File paths
+data_paths:
+  raw_theses_dir: "data/raw/theses-WAXI/"
+  processed_dir: "data/processed/"
+  finetune_dataset_dir: "data/finetune_dataset/"
+  
+# Neo4j credentials
+neo4j:
+  uri: "neo4j://localhost:7687"
+  user: "neo4j"
+  password: "your_password" # <-- IMPORTANT: Change this to your Neo4j password
+  database: "neo4j"
