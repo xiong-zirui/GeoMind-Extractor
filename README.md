@@ -1,13 +1,51 @@
-# Geodata Extraction Capstone 🧠
+# GeoMind Extractor
 
 [![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-v2-orange)](https://pydantic-docs.helpmanual.io/)
 [![Neo4j](https://img.shields.io/badge/Neo4j-Supported-blue.svg)](https://neo4j.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Geodata Extraction Capstone** is an AI-powered pipeline that extracts structured metadata, tables, and builds knowledge graphs from geological PDF documents. It leverages advanced Large Language Models (LLMs) with a robust, self-correcting workflow to transform unstructured scientific papers into machine-readable knowledge.
+**GeoMind Extractor** is an AI-powered pipeline that extracts structured metadata, tables, and builds knowledge graphs from geological PDF documents. It leverages advanced Large Language Models (LLMs) with a robust, self-correcting workflow to transform unstructured scientific papers into machine-readable knowledge.
 
 This project is designed for efficiency and reliability, featuring an automated pipeline that handles everything from PDF parsing to loading data into a graph database.
+
+## Setup Instructions
+
+### 1. Configuration Setup
+
+Before running the system, you need to configure your API keys and database credentials:
+
+1. Copy the example configuration file:
+   ```bash
+   cp config.example.yml config.yml
+   ```
+
+2. Edit `config.yml` and replace the placeholder values:
+   ```yaml
+   # API keys
+   google_api_key: "YOUR_ACTUAL_GOOGLE_API_KEY"
+   
+   # Neo4j credentials
+   neo4j:
+     uri: "neo4j://localhost:7687"
+     user: "neo4j"
+     password: "YOUR_ACTUAL_NEO4J_PASSWORD"
+     database: "neo4j"
+   ```
+
+### 2. Google AI API Setup
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Create a new API key
+3. Replace `YOUR_ACTUAL_GOOGLE_API_KEY` in config.yml with your key
+
+### 3. Neo4j Setup (Optional)
+
+If you want to use the graph database features:
+
+1. Install Neo4j Desktop or run via Docker
+2. Create a new database
+3. Update the credentials in config.yml
 
 ## ✨ Core Features
 
