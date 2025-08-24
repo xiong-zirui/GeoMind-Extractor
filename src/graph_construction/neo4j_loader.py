@@ -1,6 +1,6 @@
 import logging
 from neo4j import GraphDatabase, basic_auth
-from src.models import KnowledgeGraph
+from models import KnowledgeGraph
 
 class Neo4jLoader:
     def __init__(self, uri, user, password, database=None):

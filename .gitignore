@@ -18,6 +18,7 @@ ENV/
 
 # Ignore environment variables
 .env
+config.yml
 
 # Ignore log files
 *.log

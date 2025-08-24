@@ -6,6 +6,8 @@ import logging
 from typing import List
 from datetime import datetime
 
+from entity_extraction import llm_extractor
+
 # --- Text Extraction and Chunking ---
 
 def extract_full_text_from_pdf(pdf_path: pathlib.Path) -> str:
@@ -49,10 +51,29 @@ def extract_images_from_pdf(pdf_path: pathlib.Path, output_dir: pathlib.Path) ->
     Extracts images from a PDF and saves them to a directory.
     Returns a list of paths to the extracted images.
     """
-    # This is a placeholder implementation. 
-    # A real implementation would use PyMuPDF to extract images.
     logging.info(f"Extracting images from {pdf_path.name}...")
-    return []
+    image_paths = []
+    output_dir.mkdir(exist_ok=True)
+    
+    try:
+        doc = fitz.open(pdf_path)
+        for page_num, page in enumerate(doc):
+            image_list = page.get_images(full=True)
+            for img_index, img in enumerate(image_list):
+                xref = img[0]
+                base_image = doc.extract_image(xref)
+                image_bytes = base_image["image"]
+                image_ext = base_image["ext"]
+                image_filename = f"{pdf_path.stem}_page{page_num+1}_img{img_index}.{image_ext}"
+                image_path = output_dir / image_filename
+                with open(image_path, "wb") as f:
+                    f.write(image_bytes)
+                image_paths.append(image_path)
+        logging.info(f"Extracted {len(image_paths)} images from {pdf_path.name}")
+        return image_paths
+    except Exception as e:
+        logging.error(f"Could not extract images from PDF '{pdf_path.name}'. Error: {e}")
+        return []
 
 
 # --- Main Processing Orchestration ---
@@ -69,42 +90,56 @@ def process_single_pdf(pdf_path: pathlib.Path, agent) -> dict:
     text_chunks = chunk_text_by_paragraph(full_text)
     
     # 2. Extract Metadata from the first significant text chunk (usually the abstract)
-    metadata = {}
+    metadata = None
     if text_chunks:
         first_chunk = text_chunks[0]
         logging.info("Using the first semantic chunk for metadata extraction.")
-        # This assumes the agent has a method to get metadata
-        metadata = agent.run(prompt="Extract metadata (title, authors, etc.) from the following text.", context=first_chunk)
+        metadata = llm_extractor.extract_metadata(agent, first_chunk)
     else:
         logging.warning("No significant text chunks found for metadata extraction.")
 
-    # 3. Extract Table from the entire PDF (this remains unchanged)
-    # This assumes the agent has a method to get table data
-    table_data = agent.run(prompt="Extract any tables from the document.", context=full_text)
+    # 3. Extract Tables from the entire document by chunks
+    all_tables = []
+    logging.info("Scanning document for tables...")
+    for chunk in text_chunks:
+        tables = llm_extractor.extract_tables(agent, chunk)
+        if tables:
+            all_tables.extend(tables)
+    logging.info(f"Found {len(all_tables)} tables in total.")
     
     # 4. Extract Knowledge Graph from the first few chunks
-    knowledge_graph = {}
+    knowledge_graph = None
     if text_chunks:
-        # Combine the first 3 chunks to provide more context for KG extraction
-        kg_context = " ".join(text_chunks[:3])
-        logging.info("Using the first three semantic chunks for knowledge graph extraction.")
-        # This assumes the agent has a method to get a knowledge graph
-        knowledge_graph = agent.run(prompt="Extract a knowledge graph (entities and relationships) from the text.", context=kg_context)
+        # Combine the first 5 chunks to provide more context for KG extraction
+        kg_context = " ".join(text_chunks[:5])
+        logging.info("Using the first five semantic chunks for knowledge graph extraction.")
+        knowledge_graph = llm_extractor.extract_knowledge_graph(agent, kg_context)
     else:
         logging.warning("No significant text chunks found for knowledge graph extraction.")
 
-    # 5. Image analysis (Placeholder)
-    image_analyses = [{"status": "pending", "comment": "Image analysis not yet implemented."}]
+    # 5. Image analysis
+    image_dir = pdf_path.parent / "images"
+    image_paths = extract_images_from_pdf(pdf_path, image_dir)
+    image_analyses = []
+    if image_paths:
+        # For now, we'll just analyze the first image as a demo
+        # A full implementation might loop through all images or select important ones
+        first_image = image_paths[0]
+        # Provide some context from the text around where the image might be
+        # (This is a simplification; a real system would need to locate the image in the text)
+        image_context = " ".join(text_chunks[:3]) 
+        analysis = llm_extractor.analyze_map_image(agent, first_image, image_context)
+        if analysis:
+            image_analyses.append(analysis)
     
     # 6. Assemble the final structured data
     structured_output = {
-        "source_file": pdf_path.name,
-        "processing_timestamp_utc": datetime.utcnow().isoformat(),
-        "full_text": full_text,
-        "metadata": metadata,
-        "extracted_tables": [table_data],
-        "knowledge_graph": knowledge_graph,
-        "image_analysis": image_analyses
+        "source_document": pdf_path.name,
+        "processing_timestamp": datetime.utcnow().isoformat(),
+        "metadata": metadata.dict() if metadata else None,
+        "tables": [table.dict() for table in all_tables],
+        "knowledge_graph": knowledge_graph.dict() if knowledge_graph else None,
+        "image_analyses": [analysis.dict() for analysis in image_analyses]
     }
     
     logging.info(f"--- Finished processing: {pdf_path.name} ---")

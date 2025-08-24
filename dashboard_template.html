@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geodata Analysis Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--primary-color);
+            background-color: var(--light-bg);
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: var(--secondary-color);
+            font-size: 1.2em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .categories-section, .relationships-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .category-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .category-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .entity-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .entity-tag {
+            background: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        .relationship-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .insights-section {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .finding-card {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .recommendation-card {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .context-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .findings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🌍 Geodata Analysis Dashboard</h1>
+            <div class="subtitle">Intelligent Categorization & Analysis Results</div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+        <div class="content-grid">
+            <div class="categories-section">
+                <h2 class="section-title">📁 Entity Categories</h2>
+                <div id="categoriesContainer">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="relationships-section">
+                <h2 class="section-title">🔗 Relationship Analysis</h2>
+                <div id="relationshipsContainer">
+                    <!-- Relationships will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="insights-section">
+                <h2 class="section-title">💡 Insights & Analysis</h2>
+                <div class="findings-grid">
+                    <div>
+                        <h3>🔍 Key Findings</h3>
+                        <div id="findingsContainer">
+                            <!-- Findings will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3>💡 Recommendations</h3>
+                        <div id="recommendationsContainer">
+                            <!-- Recommendations will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h3>🗺️ Geological Context</h3>
+                    <div id="contextContainer">
+                        <!-- Context will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to load and display analysis data
+        function loadAnalysisData() {
+            // This would normally load from your JSON files
+            // For demo purposes, we'll use placeholder data
+            const analysisData = {
+                insights: {
+                    summary: {
+                        total_entities: 0,
+                        total_relationships: 0,
+                        categories_found: {},
+                        relationship_types: {}
+                    },
+                    key_findings: [],
+                    geological_context: {},
+                    recommendations: []
+                },
+                categorized_entities: {},
+                relationship_analysis: {}
+            };
+
+            displayStats(analysisData.insights.summary);
+            displayCategories(analysisData.categorized_entities);
+            displayRelationships(analysisData.relationship_analysis);
+            displayInsights(analysisData.insights);
+        }
+
+        function displayStats(summary) {
+            const statsGrid = document.getElementById('statsGrid');
+            const stats = [
+                { label: 'Total Entities', value: summary.total_entities, color: 'var(--secondary-color)' },
+                { label: 'Relationships', value: summary.total_relationships, color: 'var(--success-color)' },
+                { label: 'Categories', value: Object.keys(summary.categories_found).length, color: 'var(--warning-color)' },
+                { label: 'Entity Types', value: Object.keys(summary.relationship_types).length, color: 'var(--danger-color)' }
+            ];
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-number" style="color: ${stat.color}">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            
+            if (!categories || Object.keys(categories).length === 0) {
+                container.innerHTML = '<div class="no-data">📊 Processing analysis data...</div>';
+                return;
+            }
+
+            const categoryNames = {
+                'geological_formations': '🏔️ Geological Formations',
+                'minerals_and_rocks': '💎 Minerals & Rocks',
+                'geographic_locations': '📍 Geographic Locations',
+                'geological_processes': '🌋 Geological Processes',
+                'temporal_data': '⏰ Temporal Data',
+                'analytical_methods': '🔬 Analytical Methods',
+                'economic_geology': '💰 Economic Geology',
+                'structural_features': '🗻 Structural Features'
+            };
+
+            container.innerHTML = Object.entries(categories)
+                .filter(([key, entities]) => entities && entities.length > 0)
+                .map(([key, entities]) => `
+                    <div class="category-item">
+                        <div class="category-title">${categoryNames[key] || key}</div>
+                        <div class="entity-list">
+                            ${entities.map(entity => `<span class="entity-tag">${entity.name}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('') || '<div class="no-data">No categorized entities found</div>';
+        }
+
+        function displayRelationships(relationships) {
+            const container = document.getElementById('relationshipsContainer');
+            
+            if (!relationships || Object.keys(relationships).length === 0) {
+                container.innerHTML = '<div class="no-data">📊 Processing relationship data...</div>';
+                return;
+            }
+
+            const relationshipTypes = {
+                'spatial_relationships': '🗺️ Spatial',
+                'temporal_relationships': '⏰ Temporal',
+                'compositional_relationships': '🧪 Compositional',
+                'genetic_relationships': '🔗 Genetic'
+            };
+
+            container.innerHTML = Object.entries(relationships)
+                .filter(([key, rels]) => rels && rels.length > 0)
+                .map(([key, rels]) => `
+                    <div style="margin-bottom: 15px;">
+                        <strong>${relationshipTypes[key] || key} (${rels.length})</strong>
+                        ${rels.slice(0, 3).map(rel => `
+                            <div class="relationship-item">
+                                ${rel.source} → ${rel.relationship} → ${rel.target}
+                            </div>
+                        `).join('')}
+                        ${rels.length > 3 ? `<div class="relationship-item" style="text-align: center; font-style: italic;">...and ${rels.length - 3} more</div>` : ''}
+                    </div>
+                `).join('') || '<div class="no-data">No relationships found</div>';
+        }
+
+        function displayInsights(insights) {
+            // Key Findings
+            const findingsContainer = document.getElementById('findingsContainer');
+            if (insights.key_findings && insights.key_findings.length > 0) {
+                findingsContainer.innerHTML = insights.key_findings.map(finding => `
+                    <div class="finding-card">${finding}</div>
+                `).join('');
+            } else {
+                findingsContainer.innerHTML = '<div class="no-data">Processing findings...</div>';
+            }
+
+            // Recommendations
+            const recommendationsContainer = document.getElementById('recommendationsContainer');
+            if (insights.recommendations && insights.recommendations.length > 0) {
+                recommendationsContainer.innerHTML = insights.recommendations.map(rec => `
+                    <div class="recommendation-card">${rec}</div>
+                `).join('');
+            } else {
+                recommendationsContainer.innerHTML = '<div class="no-data">Processing recommendations...</div>';
+            }
+
+            // Geological Context
+            const contextContainer = document.getElementById('contextContainer');
+            if (insights.geological_context && Object.keys(insights.geological_context).length > 0) {
+                contextContainer.innerHTML = Object.entries(insights.geological_context).map(([key, value]) => `
+                    <div class="context-item">
+                        <strong>${key.replace('_', ' ').toUpperCase()}:</strong> ${Array.isArray(value) ? value.join(', ') : value}
+                    </div>
+                `).join('');
+            } else {
+                contextContainer.innerHTML = '<div class="no-data">Processing geological context...</div>';
+            }
+        }
+
+        // Load data when page loads
+        window.addEventListener('DOMContentLoaded', loadAnalysisData);
+
+        // Function to dynamically load real data from JSON file
+        function loadRealData(filename) {
+            fetch(filename)
+                .then(response => response.json())
+                .then(data => {
+                    displayStats(data.insights.summary);
+                    displayCategories(data.categorized_entities);
+                    displayRelationships(data.relationship_analysis);
+                    displayInsights(data.insights);
+                })
+                .catch(error => {
+                    console.log('Analysis data will be loaded after processing');
+                });
+        }
+    </script>
+</body>
+</html>

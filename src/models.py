@@ -81,3 +81,7 @@ class ExtractionError(BaseModel):
     error_message: str
     original_prompt: str
     failed_response: str
+
+# Aliases for backward compatibility with debug.py
+DocumentMetadata = ExtractedMetadata
+Table = ExtractedTable

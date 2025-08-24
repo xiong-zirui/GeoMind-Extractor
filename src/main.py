@@ -35,16 +35,21 @@ def run_pipeline(input_file=None, input_dir=None, output_dir=None, load_to_neo4j
     
     logging.info("Initializing the agent for the pipeline...")
     try:
-        agent = configure_agent(api_key=config['openai_api_key'])
-    except ValueError as e:
-        logging.error(e)
+        agent_config = config['agent_config']
+        agent = configure_agent(
+            agent_type=agent_config['agent_type'],
+            agent_name=agent_config['agent_name'],
+            api_key=config['google_api_key']
+        )
+    except (ValueError, KeyError) as e:
+        logging.error(f"Agent configuration error: {e}")
         return
 
     # --- PDF File Discovery ---
     if input_file:
         pdf_files = [pathlib.Path(input_file)]
     else:
-        raw_data_dir = pathlib.Path(input_dir) if input_dir else base_dir / config['data_paths']['raw_theses_dir']
+        raw_data_dir = pathlib.Path(input_dir) if input_dir else base_dir / config['data_paths']['raw_dir']
         pdf_files = sorted(list(raw_data_dir.glob('**/*.pdf')))
 
     if not pdf_files:
