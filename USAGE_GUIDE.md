@@ -4,7 +4,7 @@
 
 ### 1. Run the Main Analysis
 ```bash
-python comprehensive_analysis_final_en.py
+python main_analysis.py
 ```
 
 ### 2. Expected Results
@@ -18,11 +18,10 @@ The HTML report will automatically open in your browser.
 ## Working Scripts
 
 ### Primary (Recommended)
-- `comprehensive_analysis_final_en.py` - Final working version
+- `main_analysis.py` - Main comprehensive analysis script
 
 ### Alternatives  
 - `production_analysis.py` - Clean production code
-- `comprehensive_analysis_complete_en.py` - Full feature set
 
 ## Customization
 

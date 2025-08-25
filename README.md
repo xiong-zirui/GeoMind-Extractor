@@ -4,6 +4,8 @@
 
 This project has achieved successful geological document analysis with multiple working implementations.
 
+**Latest Update**: 2025-08-25 - All Chinese comments converted to English, full functionality preserved
+
 ## Key Achievements
 
 ### 🎯 Successful Analysis Results
@@ -12,23 +14,18 @@ This project has achieved successful geological document analysis with multiple 
 - **Extracted structured data**: Tables, entities, relationships, images
 - **Working analysis pipeline**: Multiple validated approaches
 
-### 📋 Available Analysis Scripts
+### 📋 Main Analysis Script
 
-1. **comprehensive_analysis_final_en.py** ✅ **WORKING**
-   - Final production version
-   - Uses cached data for reliable results
-   - Generates complete HTML reports
-   - 88 images successfully extracted
+**main_analysis.py** ✅ **PRIMARY SCRIPT**
+- Complete comprehensive analysis system
+- Uses cached data for reliable results  
+- Generates complete HTML reports with image galleries
+- Successfully tested: 88 images extracted from test document
+- Full English interface with detailed output
 
-2. **production_analysis.py** ✅ **READY**
-   - Clean production-ready code
-   - English comments and outputs
-   - Professional report generation
-
-3. **comprehensive_analysis_complete_en.py** ✅ **FUNCTIONAL**
-   - Complete feature set
-   - Comprehensive data extraction
-   - Full English interface
+**production_analysis.py** ✅ **ALTERNATIVE**
+- Clean production-ready code
+- Professional report generation
 
 ### 🔧 Core Functionality
 
@@ -62,8 +59,8 @@ pip install -r requirements.txt
 
 ### Run Analysis (Recommended)
 ```bash
-# Use the final working version
-python comprehensive_analysis_final_en.py
+# Use the main analysis script
+python main_analysis.py
 ```
 
 ### Expected Output
@@ -76,9 +73,8 @@ python comprehensive_analysis_final_en.py
 
 ```
 GeoMind-Extractor/
-├── comprehensive_analysis_final_en.py    # ✅ MAIN WORKING SCRIPT
-├── production_analysis.py               # ✅ CLEAN PRODUCTION VERSION  
-├── comprehensive_analysis_complete_en.py # ✅ FULL FEATURE VERSION
+├── main_analysis.py                     # ✅ PRIMARY ANALYSIS SCRIPT
+├── production_analysis.py               # ✅ ALTERNATIVE PRODUCTION VERSION  
 ├── src/                                 # Core source modules
 │   ├── document_processing/            # PDF and image processing
 │   ├── entity_extraction/              # Data extraction logic
