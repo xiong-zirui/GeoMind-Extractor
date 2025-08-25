@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Dict, Any
+from enum import Enum
 
 class ExtractedMetadata(BaseModel):
     """
@@ -73,6 +74,44 @@ class Document(BaseModel):
     extracted_tables: List[ExtractedTable] = Field([], description="A list of tables extracted from the document.")
     knowledge_graph: Optional[KnowledgeGraph] = Field(None, description="The knowledge graph extracted from the document.")
     image_analysis: List[MapAnalysis] = Field([], description="A list of analyses for images found in the document.")
+
+# === 新增知识合成流水线模型 ===
+
+class TaskType(str, Enum):
+    """任务类型枚举"""
+    MAP_ANALYSIS = "map_analysis"
+    GEOCHEMICAL_ANALYSIS = "geochemical_analysis"  
+    DATA_EXTRACTION = "data_extraction"
+    TEXT_SYNTHESIS = "text_synthesis"
+
+class ContentUnit(BaseModel):
+    """文档内容单元"""
+    page_number: int
+    content_type: str  # 'text', 'figure', 'table', 'map'
+    title: Optional[str] = None
+    description: str
+    keywords: List[str] = Field(default_factory=list)
+    confidence_score: float = Field(ge=0.0, le=1.0)
+    content_preview: str = ""
+
+class DocumentContentIndex(BaseModel):
+    """文档内容索引"""
+    document_name: str
+    total_pages: int
+    content_units: List[ContentUnit]
+    processing_timestamp: str
+    confidence_score: float = Field(ge=0.0, le=1.0)
+
+class AnalysisTask(BaseModel):
+    """分析任务"""
+    task_id: str
+    task_type: TaskType
+    agent_type: str  # 'map_analyst', 'geochemist', 'data_analyst'
+    priority: int = Field(ge=1, le=10)  # 1最高优先级，10最低
+    input_pages: List[int]
+    input_content_units: List[str]  # content unit ids
+    expected_output_type: str
+    processing_instructions: str
 
 class ExtractionError(BaseModel):
     """
